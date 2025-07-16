@@ -7,25 +7,6 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true,
-      "es6": true
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2018,
-      "sourceType": "module"
-    },
-    "rules": {
-      "no-unused-vars": "off",
-      "no-console": "off",
-      "no-undef": "off"
-    }
-  },
   "dependencies": {
     "@toast-ui/vue-editor": "^2.5.1",
     "axios": "^0.21.1",
