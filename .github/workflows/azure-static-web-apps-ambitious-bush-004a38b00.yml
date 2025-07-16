@@ -50,7 +50,6 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:                 
           NODE_VERSION: 16       
-          NODE_OPTIONS: "--openssl-legacy-provider"
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
