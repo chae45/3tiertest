@@ -5,8 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'board-app/**'      # <-- 웹/앱 코드가 있는 디렉터리 경로를 명시
-      - 'app_location'
+      - 'board-app/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -49,5 +48,6 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_GRASS_08DD17000 }}
           action: "close"
+
 
 
