@@ -48,8 +48,8 @@ jobs:
         context: ./board-api # <-- 빌드 컨텍스트를 board-api 디렉터리로 지정
         push: true
         tags: |
-          ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+          ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         file: ./board-api/Dockerfile # <-- Dockerfile 경로 지정
         
     # 5. Azure 로그아웃
