@@ -50,7 +50,7 @@ jobs:
         tags: |
           ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
           ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        file: ./board-api/Dockerfile # <-- Dockerfile 경로 지정
+        file: ./board-api/Dockerfile # <-- Dockerfile 경로 지정.
         
     # 5. Azure 로그아웃
     - name: Logout from Azure
