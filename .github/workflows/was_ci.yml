@@ -41,13 +41,23 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
   
-   #3-1. ACR에 Docker CLI로 직접 로그인
+# 💡 새로운 스텝 추가: 서비스 주체 값 추출 (Git Bash나 로컬 환경이 아닌 GitHub Action 내부 환경변수에 저장)
+    - name: Set ACR Credentials
+      id: acr_creds
+      shell: bash
+      run: |
+        CLIENT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.clientId')
+        CLIENT_SECRET=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.clientSecret')
+        echo "ACR_CLIENT_ID=$CLIENT_ID" >> $GITHUB_ENV
+        echo "ACR_CLIENT_SECRET=$CLIENT_SECRET" >> $GITHUB_ENV
+
+# 💡 수정된 스텝: Docker Login (추출된 환경 변수 사용)
     - name: Log into Azure Container Registry
       uses: azure/docker-login@v1
       with:
         login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-        username: ${{ secrets.AZURE_CREDENTIALS | fromJson | .clientId }} 
-        password: ${{ secrets.AZURE_CREDENTIALS | fromJson | .clientSecret }}
+        username: ${{ env.ACR_CLIENT_ID }}  # <-- 추출된 환경 변수 사용
+        password: ${{ env.ACR_CLIENT_SECRET }} # <-- 추출된 환경 변수 사용
         
 # 4. Docker 이미지 빌드 및 ACR로 푸시 
     - name: Build and push Docker image to ACR
