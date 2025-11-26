@@ -41,16 +41,19 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         
-    # 4. Docker 이미지 빌드 및 ACR로 푸시
+# 4. Docker 이미지 빌드 및 ACR로 푸시 (오류 수정됨)
     - name: Build and push Docker image to ACR
       uses: docker/build-push-action@v5
       with:
-        context: ./board-api # <-- 빌드 컨텍스트를 board-api 디렉터리로 지정
+        context: ./board-api
         push: true
+        # ACR 주소를 registry 인자로 명시적으로 전달 (오류 해결 핵심)
+        registry: ${{ secrets.ACR_LOGIN_SERVER }} 
+        # tags는 이제 이미지 이름과 태그만 사용 (registry 인자가 ACR 주소를 앞에 붙여줌)
         tags: |
-          ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
-          ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        file: ./board-api/Dockerfile # <-- Dockerfile 경로 지정.
+          ${{ env.IMAGE_NAME }}:latest 
+          ${{ env.IMAGE_NAME }}:${{ github.sha }}
+        file: ./board-api/Dockerfile
         
     # 5. Azure 로그아웃
     - name: Logout from Azure
