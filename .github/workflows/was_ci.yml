@@ -36,13 +36,20 @@ jobs:
         mvn clean package -DskipTests
         
     # 3. Azure 로그인 (Service Principal 사용)
-    - name: Login to Azure and acquire ACR token
+    - name: Login to Azure
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
+  
+   #3-1. ACR에 Docker CLI로 직접 로그인
+    - name: Log into Azure Container Registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        username: ${{ secrets.AZURE_CREDENTIALS | fromJson | .clientId }} 
+        password: ${{ secrets.AZURE_CREDENTIALS | fromJson | .clientSecret }}
         
-# 4. Docker 이미지 빌드 및 ACR로 푸시 (오류 수정됨)
+# 4. Docker 이미지 빌드 및 ACR로 푸시 
     - name: Build and push Docker image to ACR
       uses: docker/build-push-action@v5
       with:
