@@ -1,4 +1,4 @@
-##주
+##
 FROM adoptopenjdk/openjdk8:alpine-jre
 VOLUME /tmp
 ARG JAR_FILE=target/*.jar
