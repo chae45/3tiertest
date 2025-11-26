@@ -40,10 +40,7 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-        # ACR 리소스를 명시하여 해당 리소스에 대한 토큰을 확실하게 획득합니다.
-        enable-AzPSSession: true # (PowerShell 세션 사용)
-        allow-no-subscriptions: true
-        tenant-id: a74b5451-a280-4768-a5cd-cb47af153c71
+
         
 # 4. Docker 이미지 빌드 및 ACR로 푸시 (오류 수정됨)
     - name: Build and push Docker image to ACR
