@@ -36,14 +36,13 @@ jobs:
       run: mvn clean package 
       # 빌드 성공 시, board-api/target/*.jar 파일이 생성됩니다.
 
-    # 🔑 2단계: Docker를 사용하여 ACR에 로그인 (관리자 계정 사용)
     - name: Docker Login to ACR (Admin User)
       uses: docker/login-action@v3
       with:
-        registry: ${{ env.ACR_NAME }}
-        # GitHub Secrets에 등록한 ACR 관리자 사용자 정보를 사용합니다.
+        registry: ${{ secrets.ACR_LOGIN_SERVER }}
         username: ${{ secrets.ACR_USERNAME }} 
-        password: ${{ secrets.ACR_PASSWORD }} 
+        password: ${{ secrets.ACR_PASSWORD }}
+
 
     # 🔑 3단계: Docker 이미지 빌드 및 ACR에 푸시
     - name: Build and Push Docker Image
