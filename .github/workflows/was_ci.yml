@@ -32,9 +32,8 @@ jobs:
         java-version: '17' # 프로젝트에 맞는 Java 버전으로 수정하세요
 
     - name: Maven Build (board-api)
+      working-directory: ${{ env.SERVICE_PATH }} # env.SERVICE_PATH는 'board-api'
       run: |
-        # 전체 프로젝트를 빌드합니다. board-api의 빌드 결과물(jar/war)이 생성됩니다.
-        mvn clean package -f pom.xml
 
     # 🔑 2단계: Azure에 서비스 주체로 로그인
     - name: Azure CLI Login (Service Principal)
