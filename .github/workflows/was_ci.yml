@@ -3,18 +3,16 @@ name: WAS (Board API) CI to ACR
 on:
   push:
     branches: [ "main" ]
-    # board-api 디렉토리 또는 공통 pom.xml 변경 시에만 실행
     paths:
       - 'board-api/**'
       - 'pom.xml'
       
 env:
-  ACR_NAME: ${{ secrets.ACR_LOGIN_SERVER }} 
-  IMAGE: ${{ secrets.IMAGE_NAME }}        
+  ACR_NAME: ${{ secrets.ACR_LOGIN_SERVER }}
+  IMAGE: ${{ secrets.IMAGE_NAME }}
   TAG: ${{ github.sha }}
-  # 💡 [추가] board-api의 소스 코드 경로와 Dockerfile 경로 지정
   SERVICE_PATH: 'board-api'
-  DOCKERFILE_PATH: 'board-api/Dockerfile' # Dockerfile이 board-api 폴더 내에 있다고 가정
+  DOCKERFILE_PATH: 'board-api/Dockerfile'
 
 jobs:
   build-board-api-and-push-to-acr:
@@ -24,16 +22,20 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 🛠️ [추가] 1단계: Java/Maven 환경 설정 및 빌드
+    # 🛠️ 1단계: Java/Maven 환경 설정 및 빌드
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17' # 프로젝트에 맞는 Java 버전으로 수정하세요
+        java-version: '17' # 프로젝트에 맞는 버전 사용
 
     - name: Maven Build (board-api)
-      working-directory: ${{ env.SERVICE_PATH }} # env.SERVICE_PATH는 'board-api'
+      # working-directory 덕분에 'board-api' 폴더로 이동합니다.
+      working-directory: ${{ env.SERVICE_PATH }}
       run: |
+        # 🚨 [핵심 수정] 이 명령어가 board-api/pom.xml 파일을 찾아 빌드합니다.
+        mvn clean package 
+        # 빌드 성공 시, board-api/target/*.jar 파일이 생성됩니다.
 
     # 🔑 2단계: Azure에 서비스 주체로 로그인
     - name: Azure CLI Login (Service Principal)
@@ -55,10 +57,8 @@ jobs:
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v5
       with:
-        # 💡 [수정] context를 Dockerfile이 있는 디렉토리로 지정해야 합니다.
-        # Dockerfile 내에서 빌드 결과물(예: board-api/target/*.jar)을 참조할 수 있도록 설정합니다.
+        # context가 board-api이므로, Dockerfile 내부에서 target/*.jar을 복사할 수 있습니다.
         context: ${{ env.SERVICE_PATH }}
         push: true
         tags: ${{ env.ACR_NAME }}/${{ env.IMAGE }}:${{ env.TAG }}
-        # 💡 [수정] Dockerfile 경로를 정확히 지정합니다.
         file: ${{ env.DOCKERFILE_PATH }}
