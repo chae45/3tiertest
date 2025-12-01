@@ -1,8 +1,9 @@
-name: WAS (Board API) CI to ACR
+name: WAS (Board API) CI to ACR (Admin User)
 
 on:
   push:
     branches: [ "main" ]
+    # board-api 폴더나 공통 pom.xml이 변경될 때만 실행
     paths:
       - 'board-api/**'
       - 'pom.xml'
@@ -11,54 +12,47 @@ env:
   ACR_NAME: ${{ secrets.ACR_LOGIN_SERVER }}
   IMAGE: ${{ secrets.IMAGE_NAME }}
   TAG: ${{ github.sha }}
-  SERVICE_PATH: 'board-api'
-  DOCKERFILE_PATH: 'board-api/Dockerfile'
+  # board-api 폴더에 pom.xml과 Dockerfile이 있다고 가정
+  SERVICE_PATH: 'board-api' 
 
 jobs:
-  build-board-api-and-push-to-acr:
+  build-and-push-to-acr:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 🛠️ 1단계: Java/Maven 환경 설정 및 빌드
-    - name: Set up Java
+    # 🛠️ 1단계: Java 8 환경 설정 및 Maven 빌드
+    - name: Set up Java 8
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17' # 프로젝트에 맞는 버전 사용
+        java-version: '8' # 💡 Dockerfile의 OpenJDK 8에 맞춰 Java 8 사용
 
     - name: Maven Build (board-api)
-      # working-directory 덕분에 'board-api' 폴더로 이동합니다.
+      # pom.xml이 board-api 폴더에 있으므로 working-directory 설정이 필수입니다.
       working-directory: ${{ env.SERVICE_PATH }}
-      run: |
-        # 🚨 [핵심 수정] 이 명령어가 board-api/pom.xml 파일을 찾아 빌드합니다.
-        mvn clean package 
-        # 빌드 성공 시, board-api/target/*.jar 파일이 생성됩니다.
+      run: mvn clean package 
+      # 빌드 성공 시, board-api/target/*.jar 파일이 생성됩니다.
 
-    # 🔑 2단계: Azure에 서비스 주체로 로그인
-    - name: Azure CLI Login (Service Principal)
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-    # 🔑 3단계: Docker를 사용하여 ACR에 로그인
-    - name: Docker Login to ACR
+    # 🔑 2단계: Docker를 사용하여 ACR에 로그인 (관리자 계정 사용)
+    - name: Docker Login to ACR (Admin User)
       uses: docker/login-action@v3
       with:
         registry: ${{ env.ACR_NAME }}
-        username: ${{ secrets.AZURE_CLIENT_ID }} 
-        password: ${{ secrets.AZURE_CLIENT_SECRET }} 
+        # GitHub Secrets에 등록한 ACR 관리자 사용자 정보를 사용합니다.
+        username: ${{ secrets.ACR_USERNAME }} 
+        password: ${{ secrets.ACR_PASSWORD }} 
 
-    # 🔑 4단계: Docker 이미지 빌드 및 ACR에 푸시
+    # 🔑 3단계: Docker 이미지 빌드 및 ACR에 푸시
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v5
       with:
-        # context가 board-api이므로, Dockerfile 내부에서 target/*.jar을 복사할 수 있습니다.
-        context: ${{ env.SERVICE_PATH }}
+        # context: Dockerfile이 빌드할 파일을 참조하는 기준 폴더 (board-api)
+        # Dockerfile은 context 내의 target/*.jar 파일을 참조하게 됩니다.
+        context: ${{ env.SERVICE_PATH }} 
         push: true
         tags: ${{ env.ACR_NAME }}/${{ env.IMAGE }}:${{ env.TAG }}
-        file: ${{ env.DOCKERFILE_PATH }}
+        # file: Dockerfile의 경로 (board-api/Dockerfile)
+        file: ${{ env.SERVICE_PATH }}/Dockerfile
