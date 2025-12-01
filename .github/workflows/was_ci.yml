@@ -10,7 +10,7 @@ on:
       
 env:
   ACR_NAME: ${{ secrets.ACR_LOGIN_SERVER }}
-  IMAGE: ${{ secrets.IMAGE_NAME }}
+  IMAGE: board-api
   TAG: ${{ github.sha }}
   # board-api 폴더에 pom.xml과 Dockerfile이 있다고 가정
   SERVICE_PATH: 'board-api' 
