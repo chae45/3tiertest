@@ -52,6 +52,8 @@ jobs:
         # Dockerfile은 context 내의 target/*.jar 파일을 참조하게 됩니다.
         context: ${{ env.SERVICE_PATH }} 
         push: true
-        tags: ${{ env.ACR_NAME }}/${{ env.IMAGE }}:${{ env.TAG }}
+        tags: |
+          ${{ env.ACR_NAME }}/${{ env.IMAGE }}:${{ env.TAG }} # (1) 고유한 SHA 태그 (롤백용)
+          ${{ env.ACR_NAME }}/${{ env.IMAGE }}:latest # (2) App Service가 모니터링할 고정 태그
         # file: Dockerfile의 경로 (board-api/Dockerfile)
         file: ${{ env.SERVICE_PATH }}/Dockerfile
